@@ -58,6 +58,31 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("User Login")
 
+	var user Models.Users
+
+	var storedEmail string
+	var storedPassword string
+
+	if r.Body == nil {
+		json.NewEncoder(w).Encode("Enter the creditionals")
+	}
+
+	Query := `Select email,password from regisuser where email=$1`
+
+	err := Database.DBConnection.QueryRow(Query, user.Email).Scan(&storedEmail, &storedPassword)
+	if err != nil {
+		if err != nil {
+			json.NewEncoder(w).Encode("No user found with this email")
+		}
+		json.NewEncoder(w).Encode("error in searching")
+	}
+
+	res := Utils.CheckPassword(user.Password, storedPassword)
+
+	if res == true && user.Email == storedEmail {
+
+	}
+
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
