@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"todo/Database"
 	"todo/Models"
+	"todo/Utils"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -20,8 +21,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		fmt.Println("error hai babau bhaiay")
+		fmt.Println("error")
 	}
+
+	Pass, hasErr := Utils.HashPassword(user.Password)
+	if hasErr != nil {
+		json.NewEncoder(w).Encode("enter the password")
+		fmt.Println("enter the password")
+	}
+	user.Password = Pass
 
 	fmt.Println(user)
 
@@ -29,16 +37,26 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(queryString)
 
-	res, err := Database.DBConnection.Exec(queryString, user.UserName, user.Email, user.Password)
+	res, err := Database.DBConnection.Query(queryString, user.UserName, user.Email, user.Password)
 	if err != nil {
 		log.Fatal(err)
 		fmt.Println("error in db execution")
 		return
 	}
 
+	if user.UserName == "" || user.Email == "" || user.Password == "" {
+		json.NewEncoder(w).Encode("enter the data")
+	}
+
 	json.NewEncoder(w).Encode("User Created Sucessfully")
 
 	fmt.Println(res)
+
+}
+
+func UserLogin(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("User Login")
 
 }
 
